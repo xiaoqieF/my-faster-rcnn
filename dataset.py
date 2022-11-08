@@ -123,7 +123,7 @@ if __name__ == '__main__':
         "train": transforms.Compose([transforms.ToTensor(), transforms.RandomHorizontalFlip(0.5)]),
         "val": transforms.ToTensor()
     }
-    train_data_set = VOCDataSet(os.getcwd(), data_transform["train"], isTrain=True)
+    train_data_set = VOCDataSet(os.path.join(os.getcwd(), "data"), data_transform["train"], isTrain=True)
     print(len(train_data_set))
     for index in random.sample(range(0, len(train_data_set)), k=5):
         img, target = train_data_set[index]
