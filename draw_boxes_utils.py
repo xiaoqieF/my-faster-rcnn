@@ -12,7 +12,7 @@ def draw_objs(image: Image,
               category_index: dict = None,
               box_thresh: float = 0.1,
               line_thick: int = 8,
-              font: str = 'JetBrainsMono-Light.ttf',
+              font: str = 'nakula.ttf',
               font_size: int = 12,
               draw_boxes_on_image: bool = True):
     idxs = np.greater(scores, box_thresh)

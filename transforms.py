@@ -2,7 +2,7 @@ import random
 from torchvision.transforms import functional as F
 
 """
-Definition of Transforms which used in VOCDataSet
+Definition of Transforms used in VOCDataSet
 """
 
 class Compose(object):

@@ -7,6 +7,16 @@ from PIL import Image
 from lxml import etree
 
 
+def collate_fn(batch):
+    """
+    Stack img and target respectively
+    Args:
+        batch (List[List[Tensor, Dict]])
+    Return:
+        Tuple[List[Tensor], List[Dict]]
+    """
+    return tuple(zip(*batch))
+
 class VOCDataSet(Dataset):
     """ 
     DataSet of VOC2012
@@ -36,6 +46,10 @@ class VOCDataSet(Dataset):
         return len(self.xml_list)
     
     def __getitem__(self, idx):
+        """
+        Return:
+            Tuple[Tensor, Dict[str, Tensor]]: which indicate img and target
+        """
         xml_path = self.xml_list[idx]
         with open(xml_path) as f:
             xml_str = f.read()
@@ -95,12 +109,13 @@ class VOCDataSet(Dataset):
         data_width = int(data["size"]["width"])
         return data_height, data_width
 
-    def parse_xml_to_dict(self, xml):
+    @staticmethod
+    def parse_xml_to_dict(xml):
         if len(xml) == 0:
             return {xml.tag: xml.text}
         result = {}
         for child in xml:
-            child_result = self.parse_xml_to_dict(child)
+            child_result = VOCDataSet.parse_xml_to_dict(child)
             if child.tag != "object":
                 result[child.tag] = child_result[child.tag]
             else:
@@ -127,6 +142,7 @@ if __name__ == '__main__':
     print(len(train_data_set))
     for index in random.sample(range(0, len(train_data_set)), k=5):
         img, target = train_data_set[index]
+        print(f"img shape:{img.shape}, target:{target}")
         img = torchvision.transforms.ToPILImage()(img)
         plot_img = draw_objs(img,
                              target["boxes"].numpy(),
