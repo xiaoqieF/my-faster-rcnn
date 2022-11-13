@@ -5,7 +5,7 @@ class ImageList(object):
         """
         Args:
             tensors (Tensor): a single tensor includes minibatch of images
-            image_sizes (List[tuple[int, int]]): size of each image
+            image_sizes (List[tuple[int, int]]): size of each image (not include padding zeros)
         """
         self.tensors = tensors
         self.image_sizes = image_sizes

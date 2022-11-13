@@ -6,7 +6,9 @@ from .image_list import ImageList
 
 class GeneralizedRCNNTransform(nn.Module):
     """
-
+    First normalize minibatch images, Then Resize them: whether long side == max_size or 
+    short side == min_size.
+    Finally align all images in top-left corner, and padding to same size to be a batch
     """
     def __init__(self, min_size, max_size, image_mean, image_std):
         super().__init__()
