@@ -13,3 +13,6 @@ class ImageList(object):
     def to(self, device):
         cast_tensor = self.tensors.to(device)
         return ImageList(cast_tensor, self.image_sizes)
+
+    def __len__(self):
+        return len(self.image_sizes)
