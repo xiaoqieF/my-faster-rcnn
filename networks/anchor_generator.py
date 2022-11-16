@@ -18,7 +18,7 @@ class AnchorGenerator(nn.Module):
     def __init__(
         self, 
         sizes=((128, 256, 512),),
-        aspect_ratios=(0.5, 1.0, 2.0)) -> None:
+        aspect_ratios=((0.5, 1.0, 2.0),)) -> None:
         super().__init__()
 
         # change element in sizes and aspect_ratios to tuple
@@ -90,6 +90,13 @@ class AnchorGenerator(nn.Module):
 
     
     def forward(self, image_list, feature_maps):
+        """
+        Args:
+            image_list(ImageList): minibatch of images(after transform)
+            feature_maps(List[Tensor]): multi-layer feature maps, each element one layer
+        Return:
+            List[Tensor]: anchors of each image, shape of anchors are:[N, 4]
+        """
         feature_map_sizes = [feature_map.shape[-2:] for feature_map in feature_maps]
         image_size = image_list.tensors.shape[-2:]
         dtype, device = feature_maps[0].dtype, feature_maps[0].device
@@ -105,7 +112,7 @@ class AnchorGenerator(nn.Module):
         anchors_over_all_feature_maps = self.grid_anchors(feature_map_sizes, strides)
         anchors = []
         for _ in range(len(image_list)):
-            # FIXME: anchors of each image of minibatch is the same, move me out of for...
+            # FIXME: anchors of each image of minibatch is the same, move me out of for loop
             anchors_in_image = [
                 anchors_per_feature_map for anchors_per_feature_map in anchors_over_all_feature_maps
             ]

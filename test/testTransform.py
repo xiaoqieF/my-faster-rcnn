@@ -1,4 +1,9 @@
 import os
+import sys
+
+# 将工作目录添加到包搜索路径, pycharm默认添加
+sys.path.append(os.getcwd())
+
 import torchvision
 import numpy as np
 import json
@@ -9,6 +14,10 @@ from torch.utils.data import DataLoader
 from networks.transform import GeneralizedRCNNTransform
 from draw_boxes_utils import draw_objs
 
+"""
+    测试 GeneralizedRCNNTransform 效果，将一个 batch 数据经过该模块后显示相应的图像和 bbox 位置
+    效果是先将原图进行像素归一化，然后调整大小并在右边/下边补 0 , bbox位置进行相应变化
+"""
 
 if __name__ == '__main__':
     trans = GeneralizedRCNNTransform(400, 800, [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
