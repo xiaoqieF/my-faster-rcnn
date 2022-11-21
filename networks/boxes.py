@@ -65,7 +65,7 @@ class BoxCoder(object):
         Returns:
             regression params(List[Tensor])
         """
-        boxes_per_image = [len[b] for b in reference_boxes]
+        boxes_per_image = [b.shape[0] for b in reference_boxes]
         reference_boxes = torch.cat(proposals, dim=0)
         proposals = torch.cat(proposals, dim=0)
 
@@ -88,7 +88,7 @@ class BoxCoder(object):
         Returns:
             pred_boxes(List[Tensor]): shape is [N, 1, 4] ???
         """
-        boxes_per_image = [b.size[0] for b in boxes]
+        boxes_per_image = [b.shape[0] for b in boxes]
         concat_boxes = torch.cat(boxes, dim=0)
 
         # cal nums of anchors
@@ -144,7 +144,7 @@ class BoxCoder(object):
 
 
 def box_area(boxes):
-    return (boxes[: 2] - boxes[: 0]) * (boxes[:, 3] - boxes[:, 1])
+    return (boxes[:, 2] - boxes[:, 0]) * (boxes[:, 3] - boxes[:, 1])
 
 def box_iou(boxes1, boxes2):
     """

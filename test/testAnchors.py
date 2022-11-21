@@ -4,12 +4,15 @@ import sys
 # 将工作目录添加到包搜索路径, pycharm默认添加
 sys.path.append(os.getcwd())
 
+from collections import OrderedDict
 from backbones.mobilenetv2 import MobileNetV2
 from dataset import VOCDataSet, collate_fn
 import transforms
 from torch.utils.data import DataLoader
 from networks.transform import GeneralizedRCNNTransform
 from networks.anchor_generator import AnchorGenerator
+from networks.rpn import RegionProposalNetwork
+from networks.rpn import RPNHead
 import torch
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -23,6 +26,22 @@ if __name__ == '__main__':
 
     g = AnchorGenerator()
 
+    rpn_pre_nms_top_n = dict(training=2000, testing=1000)
+    rpn_post_nms_top_n = dict(training=2000, testing=1000)
+
+    rpn = RegionProposalNetwork(
+        g,
+        RPNHead(in_channels=1280, num_anchors=9),
+        fg_iou_thresh=0.7,
+        bg_iou_thresh=0.3,
+        batch_size_per_image=128,
+        positive_fraction=0.5,
+        pre_nms_top_n=rpn_pre_nms_top_n,
+        post_nms_top_n=rpn_post_nms_top_n,
+        nms_thresh=0.7
+    )
+    rpn.to(device)
+
     data_transform = {
         "train": transforms.Compose([transforms.ToTensor(), transforms.RandomHorizontalFlip(0.5)]),
         "val": transforms.ToTensor()
@@ -33,10 +52,11 @@ if __name__ == '__main__':
     train_dataloader = DataLoader(train_data_set, batch_size=8, shuffle=True, \
         num_workers=4, collate_fn=collate_fn)
 
-    for imgs, t in train_dataloader:
-        img_list, target = trans(imgs, t)
-        img_cuda = img_list.tensors.to(device)
-        feat = backbone(img_cuda)
+    for imgs, target in train_dataloader:
+        imgs = [img.to(device) for img in imgs]
+        target = [{k: v.to(device) for k, v in t.items()} for t in target]
+        img_list, target = trans(imgs, target)
+        feat = backbone(img_list.tensors)
         print(f"features shape:{feat.shape}")
-        anchors = g(img_list, (feat,))
-        print(f"anchors len:{len(anchors)}, shape: {anchors[0].shape}")
+        features = OrderedDict([("0", feat)])
+        boxes, losses = rpn(img_list, features, target)

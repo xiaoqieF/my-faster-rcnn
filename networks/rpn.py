@@ -208,9 +208,11 @@ class RegionProposalNetwork(nn.Module):
             targets(List[Dict[Str, Tensor]])
 
         Returns:
+            Tuple[List[Tensor[num_image, anchors_per_image]], List[Tensor[num_image, anchors_per_image]]]
         """
         labels = []
         matched_gt_boxes = []
+        # for each image
         for anchors_per_image, targets_per_image in zip(anchors, targets):
             gt_boxes = targets_per_image["boxes"]
             if gt_boxes.numel() == 0:
@@ -222,9 +224,13 @@ class RegionProposalNetwork(nn.Module):
                 # gt indices corresponding to each anchor, -1 for negative sample, -2 for dropped sample
                 matched_idxs = self.proposal_matcher(match_quality_matrix)
                 
-                matched_gt_boxes_per_image = gt_boxes[matched_idxs.clamp(min=0)]
+                # shape:[num_anchors_per_image, 4], holds gt box coordinate to each anchor
+                # use clamp(min=0) to get gt coord conveniently, only coordinates for positive samples are available
+                # labels_per_image holds positive samples' indices
+                matched_gt_boxes_per_image = gt_boxes[matched_idxs.clamp(min=0)] 
 
-                labels_per_image = matched_idxs >= 0
+                # labels_per_image holds labels of each anchor(positive sample is 1, negetive is 0, dropped sample is -2)
+                labels_per_image = matched_idxs >= 0   # positive anchor label True
                 labels_per_image = labels_per_image.to(dtype=torch.float32)
 
                 bg_indices = matched_idxs == self.proposal_matcher.BELOW_LOW_THRESHOLD  # -1

@@ -55,24 +55,14 @@ class Matcher(object):
         """
         highest_quality_foreach_gt, _ = match_quality_matrix.max(dim=1)
 
-        # Example gt_pred_pairs_of_highest_quality:
-        #   tensor([[    0, 39796],
-        #           [    1, 32055],
-        #           [    1, 32070],
-        #           [    2, 39190],
-        #           [    2, 40255],
-        #           [    3, 40390],
-        #           [    3, 41455],
-        #           [    4, 45470],
-        #           [    5, 45325],
-        #           [    5, 46390]])
-        # Each row is a (gt index, prediction index)
-        # Note how gt items 1, 2, 3, and 5 each have two ties
+        # Example gt_pred_pairs_of_highest_quality(Tuple[2]):
+        #   (tensor([ 0, 0, 1, 1, 1, 1, 1, 1]),
+        #   tensor([ 1010, 1019, 2340, 2349, 2358, 2367, 2376, 2385]))
         gt_anchor_pairs_of_highest_quality = torch.where(
             torch.eq(match_quality_matrix, highest_quality_foreach_gt[:, None])
         )
         # update corresponding anchor
-        anchor_inds_to_update = gt_anchor_pairs_of_highest_quality[:, 1]
+        anchor_inds_to_update = gt_anchor_pairs_of_highest_quality[1]
         matches[anchor_inds_to_update] = all_matches[anchor_inds_to_update]
 
 
