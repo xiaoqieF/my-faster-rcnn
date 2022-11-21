@@ -23,9 +23,8 @@ class GeneralizedRCNNTransform(nn.Module):
             images: List[Tensor]
             targets: List[Dict[str, Tensor]]
         Return:
-            Tuple[List[Tensor], List[Dict[str, Tensor]]]
+            ImageList, List[Dict[str, Tensor]]]
 
-        be careful that this function will modify images and targets in place
         """
         images = [img for img in images]
         targets = [{k: v for k,v in t.items()} for t in targets]

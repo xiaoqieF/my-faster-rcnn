@@ -9,6 +9,7 @@ from dataset import VOCDataSet, collate_fn
 import transforms
 from torch.utils.data import DataLoader
 from networks.transform import GeneralizedRCNNTransform
+from networks.anchor_generator import AnchorGenerator
 import torch
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -19,6 +20,8 @@ if __name__ == '__main__':
     backbone.to(device)
     print(backbone)
     trans = GeneralizedRCNNTransform(400, 800, [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+
+    g = AnchorGenerator()
 
     data_transform = {
         "train": transforms.Compose([transforms.ToTensor(), transforms.RandomHorizontalFlip(0.5)]),
@@ -34,4 +37,6 @@ if __name__ == '__main__':
         img_list, target = trans(imgs, t)
         img_cuda = img_list.tensors.to(device)
         feat = backbone(img_cuda)
-        break
+        print(f"features shape:{feat.shape}")
+        anchors = g(img_list, (feat,))
+        print(f"anchors len:{len(anchors)}, shape: {anchors[0].shape}")

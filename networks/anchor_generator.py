@@ -1,6 +1,5 @@
 import torch
 from torch import nn
-from .image_list import ImageList
 
 
 class AnchorGenerator(nn.Module):

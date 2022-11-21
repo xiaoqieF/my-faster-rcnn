@@ -36,7 +36,6 @@ class InvertedResidual(nn.Module):
         self.conv = nn.Sequential(*layers)
 
     def forward(self, x):
-        print(x.shape)
         if self.use_shortcut:
             return x + self.conv(x)
         else:
