@@ -208,7 +208,7 @@ class RegionProposalNetwork(nn.Module):
             targets(List[Dict[Str, Tensor]])
 
         Returns:
-            Tuple[List[Tensor[num_image, anchors_per_image]], List[Tensor[num_image, anchors_per_image]]]
+            Tuple[List[num_images], List[num_images]]
         """
         labels = []
         matched_gt_boxes = []
@@ -295,7 +295,7 @@ class RegionProposalNetwork(nn.Module):
         num_anchors_per_level_shape_tensors = [obj[0].shape for obj in objectness]  # obj:[N, C, H, W] -> obj[0]:[C, H, W]
         num_anchors_per_level = [s[0] * s[1] * s[2] for s in num_anchors_per_level_shape_tensors]
 
-        # now shape of objectness is [N, 1], shape of pred_bbox_deltas is [N, 4]
+        # now shape of objectness is [N(batch_size * num_anchors_per_img), 1], shape of pred_bbox_deltas is [N, 4]
         objectness, pred_bbox_deltas = concat_box_prediction_layers(objectness, pred_bbox_deltas)
 
         # decode regression params to bbox coordinate

@@ -66,7 +66,7 @@ class BoxCoder(object):
             regression params(List[Tensor])
         """
         boxes_per_image = [b.shape[0] for b in reference_boxes]
-        reference_boxes = torch.cat(proposals, dim=0)
+        reference_boxes = torch.cat(reference_boxes, dim=0)
         proposals = torch.cat(proposals, dim=0)
 
         targets = self.encode_single(reference_boxes, proposals)
@@ -83,18 +83,14 @@ class BoxCoder(object):
         """
         Calculate regression boxes use regression params and anchors
         Args:
-            rel_codes(Tensor): regression params, shape is [N, 4]
+            rel_codes(Tensor): regression params, shape is [N(batch_size*anchors_per_img), 4]
             boxes(List[Tensor]): anchors / proposals of many images
         Returns:
             pred_boxes(List[Tensor]): shape is [N, 1, 4] ???
         """
-        boxes_per_image = [b.shape[0] for b in boxes]
-        concat_boxes = torch.cat(boxes, dim=0)
+        concat_boxes = torch.cat(boxes, dim=0)   # [N, 4]
 
-        # cal nums of anchors
-        box_sum = 0
-        for val in boxes_per_image:
-            box_sum += val
+        box_sum = concat_boxes.shape[0]
         
         pred_boxes = self.decode_single(rel_codes, concat_boxes)
 
@@ -117,7 +113,7 @@ class BoxCoder(object):
         center_y = boxes[:, 1] + 0.5 * heights
 
         wx, wy, ww, wh = self.weights
-        dx = rel_codes[:, 0::4] / wx
+        dx = rel_codes[:, 0::4] / wx         # 0::4 keep second dimension
         dy = rel_codes[:, 1::4] / wy
         dw = rel_codes[:, 2::4] / ww
         dh = rel_codes[:, 3::4] / wh
@@ -139,7 +135,7 @@ class BoxCoder(object):
         # ymax
         pred_boxes_y2 = pred_center_y + torch.tensor(0.5, dtype=pred_center_y.dtype, device=pred_h.device) * pred_h
 
-        pred_boxes = torch.stack((pred_boxes_x1, pred_boxes_y1, pred_boxes_x2, pred_boxes_y2), dim=2).flatten(1)
+        pred_boxes = torch.cat((pred_boxes_x1, pred_boxes_y1, pred_boxes_x2, pred_boxes_y2), dim=1)
         return pred_boxes        
 
 
@@ -160,7 +156,7 @@ def box_iou(boxes1, boxes2):
     # calculate areas of interaction of boxes1 and boxes2
     # torch.max(Tensor[N, 1, 2], Tensor[M, 2]), follow broadcasting rules, output [N, M, 2]
     left_top = torch.max(boxes1[:, None, :2], boxes2[:, :2])  # [N, M, 2]
-    right_bottom = torch.max(boxes1[:, None, 2:], boxes2[:, 2:])
+    right_bottom = torch.min(boxes1[:, None, 2:], boxes2[:, 2:])
 
     wh = (right_bottom - left_top).clamp(min=0)
     inter = wh[:, :, 0] * wh[:, :, 1]         # [N, M]
@@ -199,7 +195,7 @@ def remove_small_boxes(boxes, min_size):
     """
     ws, hs = boxes[:, 2] - boxes[:, 0], boxes[:, 3] - boxes[:, 1]
     keep = torch.logical_and(torch.ge(ws, min_size), torch.ge(hs, min_size))
-    keep = torch.where(keep)[0]  # return index
+    keep = torch.where(keep)[0]  # torch.where(condition) returns a tuple, use [0] return keep box index
     return keep
 
 def batched_nms(boxes, scores, idxs, iou_threshold):
