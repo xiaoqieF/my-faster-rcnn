@@ -151,6 +151,16 @@ class RegionProposalNetwork(nn.Module):
 
 
     def filter_proposals(self, proposals, objectness, image_shapes, num_anchors_per_level):
+        """
+        get top k proposals and do clip, remove small boxes and nms
+        Args:
+            proposals(Tensor[batch_size, -1, 4]): proposals predicted by rpn_head
+            objectness(Tensor[batch_size * num_anchors_per_img, 1]): cls_scores predicted by rpn_head
+            image_shapes(List[Tuple(int, int)]): true image shape (no padding)
+            num_anchors_per_level(List[int]): num anchors of each feature map, use this to do nms independent of feature maps
+        Returns:
+            Tuple[List[Tensor[N, 4]], List[Tensor[N, 1]]]: final boxes coordinates and final scores
+        """
         num_images = proposals.shape[0]
         device = proposals.device
 
@@ -208,7 +218,12 @@ class RegionProposalNetwork(nn.Module):
             targets(List[Dict[Str, Tensor]])
 
         Returns:
-            Tuple[List[num_images], List[num_images]]
+            Tuple[List[num_images], List[num_images]]: 
+            labels:List of tensors, each tensor(shape[num_anchors_per_img]) 
+            indicate current anchor's label, 1 for positive, 0 for negetive, 
+            -2 for dropped sample.
+            matched_gt_boxes:List of tensors, each tensor(shape[num_anchors_per_img, 4])
+            indicate corresponding gt box's coordinate, only where labels is 1 is avail
         """
         labels = []
         matched_gt_boxes = []
