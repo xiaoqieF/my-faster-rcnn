@@ -221,7 +221,7 @@ class RegionProposalNetwork(nn.Module):
             Tuple[List[num_images], List[num_images]]: 
             labels:List of tensors, each tensor(shape[num_anchors_per_img]) 
             indicate current anchor's label, 1 for positive, 0 for negetive, 
-            -2 for dropped sample.
+            -1 for dropped sample.
             matched_gt_boxes:List of tensors, each tensor(shape[num_anchors_per_img, 4])
             indicate corresponding gt box's coordinate, only where labels is 1 is avail
         """
@@ -322,6 +322,8 @@ class RegionProposalNetwork(nn.Module):
         losses = {}
         if self.training:
             assert targets is not None, f"targets should not be None when training"
+            # labels(List[Tensor[num_anchors_per_img]]): 1 for positive, 0 for negetive, -1 for dropped sample.
+            # matched_gt_boxes(List[Tensor[num_anchors_per_img, 4]]): each anchor's corresponding gt, only positive anchor is valid
             labels, matched_gt_boxes = self.assign_targets_to_anchors(anchors, targets)
             regression_targets = self.box_coder.encode(matched_gt_boxes, anchors)
             loss_objectness, loss_rpn_box_reg = self.compute_loss(

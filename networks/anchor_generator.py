@@ -34,6 +34,9 @@ class AnchorGenerator(nn.Module):
             self.generate_anchors(size, aspect_ratio) 
                 for size, aspect_ratio in zip(sizes, aspect_ratios)
         ]
+    
+    def num_anchors_per_layer(self):
+        return [len(s) * len(a) for s, a in zip(self.sizes, self.aspect_ratios)]
 
     def generate_anchors(self, scales, aspect_ratios, dtype=torch.float32, device = torch.device("cpu")):
         """

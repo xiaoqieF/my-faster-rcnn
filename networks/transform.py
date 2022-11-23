@@ -81,7 +81,6 @@ class GeneralizedRCNNTransform(nn.Module):
     def resize_boxes(boxes, original_size, new_size):
         ratios_height, ratios_width = \
             new_size[0] / original_size[0], new_size[1]/ original_size[1]
-        # FIXME: boxes[:, 0,2] *= ratios_width, boxes[:, 1,3] *= ratios_height
         xmin, ymin, xmax, ymax = boxes.unbind(1)
         xmin = xmin * ratios_width
         xmax = xmax * ratios_width

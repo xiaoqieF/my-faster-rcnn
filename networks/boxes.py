@@ -86,7 +86,7 @@ class BoxCoder(object):
             rel_codes(Tensor): regression params, shape is [N(batch_size*anchors_per_img), 4]
             boxes(List[Tensor]): anchors / proposals of many images
         Returns:
-            pred_boxes(List[Tensor]): shape is [N, 1, 4] ???
+            pred_boxes(List[Tensor]): shape is [N, num_classes, 4]
         """
         concat_boxes = torch.cat(boxes, dim=0)   # [N, 4]
 
