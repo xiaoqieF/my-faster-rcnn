@@ -36,4 +36,4 @@ if __name__ == '__main__':
         imgs = [img.to(device) for img in imgs]
         target = [{k: v.to(device) for k, v in t.items()} for t in target]
         loss, detections = model(imgs, target)
-        print(detections)
+        print(loss)

@@ -86,7 +86,7 @@ class BoxCoder(object):
             rel_codes(Tensor): regression params, shape is [N(batch_size*anchors_per_img), 4]
             boxes(List[Tensor]): anchors / proposals of many images
         Returns:
-            pred_boxes(List[Tensor]): shape is [N, num_classes, 4]
+            pred_boxes(Tensor): shape is [N, num_classes, 4]
         """
         concat_boxes = torch.cat(boxes, dim=0)   # [N, 4]
 
@@ -113,7 +113,7 @@ class BoxCoder(object):
         center_y = boxes[:, 1] + 0.5 * heights
 
         wx, wy, ww, wh = self.weights
-        dx = rel_codes[:, 0::4] / wx         # 0::4 keep second dimension
+        dx = rel_codes[:, 0::4] / wx         # rel_codes:[N, num_classes*4], 0::4 extract dx of each class
         dy = rel_codes[:, 1::4] / wy
         dw = rel_codes[:, 2::4] / ww
         dh = rel_codes[:, 3::4] / wh
@@ -172,7 +172,7 @@ def clip_boxes_to_image(boxes, size):
         size(Tuple[height, width])
     """
     dim = boxes.dim()
-    boxes_x = boxes[..., 0::2]
+    boxes_x = boxes[..., 0::2]  # 0::2 extract x of each box, total num_classes boxes per proposal
     boxes_y = boxes[..., 1::2]
     height, width = size
 

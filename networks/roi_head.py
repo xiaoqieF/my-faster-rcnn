@@ -28,8 +28,8 @@ class FastRCNNPredictor(nn.Module):
 
     def forward(self, x):
         x = x.flatten(start_dim=1)
-        scores = self.cls_score(x)
-        bbox_deltas = self.bbox_pred(x)
+        scores = self.cls_score(x)       # [N, num_cls] predict cls_score for each proposals
+        bbox_deltas = self.bbox_pred(x)  # [N, num_cls * 4] predict bbox_params for each proposals, each proposals predict num_classes bbox
 
         return scores, bbox_deltas
 
@@ -193,7 +193,7 @@ class RoIHead(nn.Module):
         """
         Args:
             class_logits(Tensor[num_proposals, num_classes])
-            box_regression(Tensor[num_proposals, 4])
+            box_regression(Tensor[num_proposals, num_classes * 4])
             proposals(List[Tensor])
             image_shapes(List[Tensor])
         Return:
@@ -203,7 +203,7 @@ class RoIHead(nn.Module):
         num_classes = class_logits.shape[-1]
 
         boxes_per_image = [boxes_in_image.shape[0] for boxes_in_image in proposals]
-        pred_boxes = self.box_coder.decode(box_regression, proposals)
+        pred_boxes = self.box_coder.decode(box_regression, proposals) # [N, num_classes, 4]
 
         pred_scores = F.softmax(class_logits, -1)  # [N, num_classes], N is sum of all boxes
 
@@ -229,7 +229,7 @@ class RoIHead(nn.Module):
             # batch everything, by making every class prediction be a separate instance
             boxes = boxes.reshape(-1, 4)
             scores = scores.reshape(-1)
-            labels = labels.reshape(-1)
+            labels = labels.reshape(-1)  # label current box predict which class [[1,2,3 ... , num_class-1], [1,2,3 ... ,num_class-1], ...]
 
             inds = torch.where(torch.gt(scores, self.score_thresh))[0]
             boxes, scores, labels = boxes[inds], scores[inds], labels[inds]
@@ -270,10 +270,10 @@ class RoIHead(nn.Module):
         
         # box_features:[num_proposals, channel, height, width]
         box_features = self.box_roi_pool(features, proposals, image_shapes)
-        # box_features:[num_proposals, representation_size]
+        # box_features:[num_proposals, representation_size=1024]
         box_features = self.box_head(box_features)
         
-        class_logits, box_regression = self.box_predictor(box_features)
+        class_logits, box_regression = self.box_predictor(box_features) # [N, num_classes], [N, num_classes * 4]
 
         result = []
         losses = {}
