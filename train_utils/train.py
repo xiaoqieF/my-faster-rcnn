@@ -25,7 +25,7 @@ def train_one_epoch(model, epoch, train_dataloader, optimizer, device, warmup=Fa
         warmup_iters = min(1000, len(train_dataloader) - 1)
         lr_scheduler = warmup_lr_scheduler(optimizer, warmup_iters, warmup_factor)
 
-    for imgs, target in tqdm(train_dataloader, desc='training:'):
+    for i, (imgs, target) in enumerate(train_dataloader):
         imgs = [img.to(device) for img in imgs]
         target = [{k: v.to(device) for k, v in t.items()} for t in target]
 
@@ -38,8 +38,15 @@ def train_one_epoch(model, epoch, train_dataloader, optimizer, device, warmup=Fa
 
         if lr_scheduler is not None:
             lr_scheduler.step()
-    
-    print(f"epoch: {epoch + 1}, loss: {losses.item()}")
+
+        if (i + 1) % 50 == 0:
+            print(f"Train: [{i}/{len(train_dataloader)}]  \
+                loss_objectness:{loss_dict['loss_objectness']} \
+                loss_rpn_reg:{loss_dict['loss_rpn_box_reg']} \
+                loss_classifier:{loss_dict['loss_classifier']} \
+                loss_box_reg:{loss_dict['loss_box_reg']} \
+                loss_total:{losses} \
+                lr:{optimizer.state_dict()['param_groups'][0]['lr']}")
             
 @torch.no_grad()
 def evaluate(model, val_dataloader, device):
