@@ -123,6 +123,48 @@ class VOCDataSet(Dataset):
                     result["object"] = []
                 result[child.tag].append(child_result[child.tag])
         return {xml.tag: result}
+
+    def coco_index(self, idx):
+        """
+        read xml file and get targets and size info of img,
+        without process image
+        """
+        # read xml
+        xml_path = self.xml_list[idx]
+        with open(xml_path) as fid:
+            xml_str = fid.read()
+        xml = etree.fromstring(xml_str)
+        data = self.parse_xml_to_dict(xml)["annotation"]
+        data_height = int(data["size"]["height"])
+        data_width = int(data["size"]["width"])
+
+        boxes = []
+        labels = []
+        iscrowd = []
+        for obj in data["object"]:
+            xmin = float(obj["bndbox"]["xmin"])
+            xmax = float(obj["bndbox"]["xmax"])
+            ymin = float(obj["bndbox"]["ymin"])
+            ymax = float(obj["bndbox"]["ymax"])
+            boxes.append([xmin, ymin, xmax, ymax])
+            labels.append(self.class_dict[obj["name"]])
+            iscrowd.append(int(obj["difficult"]))
+
+        # convert everything into a torch.Tensor
+        boxes = torch.as_tensor(boxes, dtype=torch.float32)
+        labels = torch.as_tensor(labels, dtype=torch.int64)
+        iscrowd = torch.as_tensor(iscrowd, dtype=torch.int64)
+        image_id = torch.tensor([idx])
+        area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
+
+        target = {}
+        target["boxes"] = boxes
+        target["labels"] = labels
+        target["image_id"] = image_id
+        target["area"] = area
+        target["iscrowd"] = iscrowd
+
+        return (data_height, data_width), target
     
 if __name__ == '__main__':
     import transforms

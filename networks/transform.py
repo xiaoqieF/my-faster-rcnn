@@ -27,7 +27,8 @@ class GeneralizedRCNNTransform(nn.Module):
 
         """
         images = [img for img in images]
-        targets = [{k: v for k,v in t.items()} for t in targets]
+        if targets is not None:
+            targets = [{k: v for k,v in t.items()} for t in targets]
         for i in range(len(images)):
             image = images[i]
             target = targets[i] if targets is not None else None

@@ -53,8 +53,9 @@ class GeneralizedRCNN(nn.Module):
         losses.update(detector_losses)
         losses.update(proposal_losses)
 
-        return (losses, detections)
-
+        if self.training:
+            return losses
+        return detections
 
 class FasterRCNN(GeneralizedRCNN):
     def __init__(self, backbone, num_classes=None,
