@@ -2,9 +2,11 @@ import torch
 from torch import nn, optim
 from tqdm import tqdm
 import time
+from torch.utils.tensorboard import SummaryWriter
 
 from train_utils.coco_utils import CocoEvaluator, convert_voc_to_coco
 
+writer = SummaryWriter(log_dir='./logs')
 def warmup_lr_scheduler(optimizer, warmup_iters, warmup_factor):
     def f(x):
         if x >= warmup_iters:
@@ -43,6 +45,11 @@ def train_one_epoch(model, epoch, train_dataloader, optimizer, device, warmup=Fa
             print(f"Train: [{i}/{len(train_dataloader)}] loss_objectness:{loss_dict['loss_objectness']:.3} "
             f"loss_rpn_reg:{loss_dict['loss_rpn_box_reg']:.3} loss_classifier:{loss_dict['loss_classifier']:.3} "
             f"loss_box_reg:{loss_dict['loss_box_reg']:.3} loss_total:{losses:.3} lr:{optimizer.state_dict()['param_groups'][0]['lr']:.5}")
+
+        if (i + 1) % 200 == 0:
+            writer.add_scalars("loss", loss_dict, i + epoch * len(train_dataloader))
+            writer.add_scalar("total_loss", losses, i + epoch * len(train_dataloader))
+
             
 @torch.no_grad()
 def evaluate(model, val_dataloader, device):
