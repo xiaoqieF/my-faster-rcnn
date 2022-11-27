@@ -21,7 +21,7 @@ def main():
     print(f"device:{device}")
 
     data_transform = {
-        "train": transforms.Compose([transforms.ToTensor(), transforms.RandomHorizontalFlip(0.5)]),
+        "train": transforms.Compose([transforms.ToTensor()]),
         "val": transforms.ToTensor()
     }
 
@@ -32,13 +32,13 @@ def main():
     train_dataset = VOCDataSet(data_root, data_transform["train"], isTrain=True)
     print(f"total training samples:{len(train_dataset)}")
 
-    train_dataloader = DataLoader(train_dataset, batch_size=8, shuffle=True, \
+    train_dataloader = DataLoader(train_dataset, batch_size=8, shuffle=False, \
         num_workers=4, collate_fn=collate_fn)
 
     val_dataset = VOCDataSet(data_root, data_transform["val"], isTrain=False)
     print(f"total validation samples:{len(val_dataset)}")
 
-    val_dataloader = DataLoader(val_dataset, batch_size=8, shuffle=False, 
+    val_dataloader = DataLoader(val_dataset, batch_size=1, shuffle=False, 
         num_workers=4, collate_fn=collate_fn)
     
     model = create_model(num_classes=21)
@@ -48,7 +48,7 @@ def main():
         param.requires_grad = False
 
     params = [p for p in model.parameters() if p.requires_grad]
-    optimizer = torch.optim.SGD(params, lr=0.01, momentum=0.9, weight_decay=0.0005)
+    optimizer = torch.optim.SGD(params, lr=0.05, momentum=0.9, weight_decay=0.0005)
 
     init_epochs = 5
     for epoch in range(init_epochs):
@@ -64,14 +64,14 @@ def main():
         
     # define optimizer
     params = [p for p in model.parameters() if p.requires_grad]
-    optimizer = torch.optim.SGD(params, lr=0.005,
+    optimizer = torch.optim.SGD(params, lr=0.05,
                                 momentum=0.9, weight_decay=0.0005)
     # learning rate scheduler
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
                                                    step_size=3,
-                                                   gamma=0.33)
+                                                   gamma=0.5)
     
-    num_epochs = 20
+    num_epochs = 30
     for epoch in range(init_epochs, num_epochs+init_epochs, 1):
         train_one_epoch(model, epoch, train_dataloader, optimizer, device, warmup=True)
         lr_scheduler.step()

@@ -40,13 +40,9 @@ def train_one_epoch(model, epoch, train_dataloader, optimizer, device, warmup=Fa
             lr_scheduler.step()
 
         if (i + 1) % 50 == 0:
-            print(f"Train: [{i}/{len(train_dataloader)}]  \
-                loss_objectness:{loss_dict['loss_objectness']} \
-                loss_rpn_reg:{loss_dict['loss_rpn_box_reg']} \
-                loss_classifier:{loss_dict['loss_classifier']} \
-                loss_box_reg:{loss_dict['loss_box_reg']} \
-                loss_total:{losses} \
-                lr:{optimizer.state_dict()['param_groups'][0]['lr']}")
+            print(f"Train: [{i}/{len(train_dataloader)}] loss_objectness:{loss_dict['loss_objectness']:.3} "
+            f"loss_rpn_reg:{loss_dict['loss_rpn_box_reg']:.3} loss_classifier:{loss_dict['loss_classifier']:.3} "
+            f"loss_box_reg:{loss_dict['loss_box_reg']:.3} loss_total:{losses:.3} lr:{optimizer.state_dict()['param_groups'][0]['lr']:.5}")
             
 @torch.no_grad()
 def evaluate(model, val_dataloader, device):

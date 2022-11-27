@@ -135,7 +135,7 @@ class BoxCoder(object):
         # ymax
         pred_boxes_y2 = pred_center_y + torch.tensor(0.5, dtype=pred_center_y.dtype, device=pred_h.device) * pred_h
 
-        pred_boxes = torch.cat((pred_boxes_x1, pred_boxes_y1, pred_boxes_x2, pred_boxes_y2), dim=1)
+        pred_boxes = torch.stack((pred_boxes_x1, pred_boxes_y1, pred_boxes_x2, pred_boxes_y2), dim=2).flatten(1)
         return pred_boxes        
 
 

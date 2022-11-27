@@ -59,7 +59,7 @@ class GeneralizedRCNN(nn.Module):
 
 class FasterRCNN(GeneralizedRCNN):
     def __init__(self, backbone, num_classes=None,
-                 min_size=400, max_size=600,
+                 min_size=800, max_size=1333,
                  image_mean=None, image_std=None,
                  rpn_anchor_generator=None, rpn_head=None,
                  rpn_pre_nms_top_n_train=2000, rpn_pre_nms_top_n_test=1000,
@@ -95,7 +95,7 @@ class FasterRCNN(GeneralizedRCNN):
 
         # default AnchorGenerator only for one feature map layer
         if rpn_anchor_generator is None:
-            rpn_anchor_generator = AnchorGenerator()
+            rpn_anchor_generator = AnchorGenerator(sizes=((32, 64, 128, 256, 512),), aspect_ratios=((0.5, 1.0, 2.0),))
         
         if rpn_head is None:
             rpn_head = RPNHead(out_channels, rpn_anchor_generator.num_anchors_per_layer()[0])
