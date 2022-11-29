@@ -29,7 +29,7 @@ def draw_objs(image: Image,
             left, top, right, bottom = box
             draw.rectangle([(left, top), (right, bottom)], width=line_thick, outline="red")
             
-            text = f"{category_index[str(cls)]}: {str(score)}"
+            text = f"{category_index[str(cls)]}: {str(score):.3}"
             text_width, text_height = font.getsize(text)
             margin = np.ceil(0.05 * text_width)
             draw.rectangle([(left, top), (left + text_width + 2 * margin, top + text_height)], fill='blue')

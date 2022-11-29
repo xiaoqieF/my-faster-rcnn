@@ -20,6 +20,7 @@ def create_model(num_classes):
 
 if __name__ == '__main__':
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cpu")
     print(f"device:{device}")
 
     cate_index = {}
@@ -37,19 +38,16 @@ if __name__ == '__main__':
     img = F.to_tensor(img).unsqueeze(0)
     img = img.to(device)
     with torch.no_grad():
-        torch.cuda.synchronize()
-        start = time.time()
         detection = model(img)[0]
-        torch.cuda.synchronize()
-        end = time.time()
-        print(detection, f"time spend:{end - start}")
-        img = torchvision.transforms.ToPILImage()(img.squeeze(0))
-        plot_img = draw_objs(img,
-                             detection["boxes"].cpu().numpy(),
-                             detection["labels"].cpu().numpy(),
-                             detection["scores"].cpu().numpy(),
-                             cate_index,
-                             box_thresh=0.5,
-                             line_thick=2)
-        plt.imshow(plot_img)
-        plt.show()
+        print(detection)
+        img_1 = torchvision.transforms.ToPILImage()(img.squeeze(0))
+        plot_img = draw_objs(img_1,
+                            detection["boxes"].cpu().numpy(),
+                            detection["labels"].cpu().numpy(),
+                            detection["scores"].cpu().numpy(),
+                            cate_index,
+                            box_thresh=0.5,
+                            line_thick=2)
+        plot_img.save("result.jpg")
+    plt.imshow(plot_img)
+    plt.show()

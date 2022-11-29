@@ -9,7 +9,6 @@ import transforms
 from dataset import VOCDataSet, collate_fn
 
 
-
 def create_model(num_classes):
     backbone = MobileNetV2(weights_path='./backbones/mobilenet_v2.pth').features
     backbone.out_channels = 1280
