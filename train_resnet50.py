@@ -11,8 +11,6 @@ from dataset import VOCDataSet, collate_fn
 
 def create_model(num_classes):
     backbone = resnet50(weight_path='./backbones/resnet50.pth', trainable_layers=0)
-    backbone.out_channels = 2048
-
     model = FasterRCNN(backbone=backbone, num_classes=num_classes)
     return model
 
@@ -48,7 +46,7 @@ def main():
     optimizer = torch.optim.SGD(params, lr=0.01,
                                 momentum=0.9, weight_decay=0.0005)
     # 先冻结backbone参数，训练 init_epochs 轮
-    init_epochs = 3
+    init_epochs = 5
     for epoch in range(init_epochs):
         train_one_epoch(model, epoch, train_dataloader, optimizer, device, warmup=True)
         evaluate(model, val_dataloader, device)

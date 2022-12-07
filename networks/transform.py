@@ -56,7 +56,8 @@ class GeneralizedRCNNTransform(nn.Module):
 
     def resize(self, image, target):
         """
-            Resize image and bbox rely on self.min_size and self.max_size
+            Resize image and bbox between self.min_size and self.max_size
+            will not change proportion of image
         """
         h, w = image.shape[-2:]
         im_shape = torch.tensor(image.shape[-2:])
@@ -95,6 +96,9 @@ class GeneralizedRCNNTransform(nn.Module):
 
     def batch_images(self, images, size_divisible=32):
         """
+        batch images together
+        trans all imgs to shape of max_size, and align top-left corner
+        for img which smaller than max_size, padding zero
         Args:
             images(List[Tensor])
             size_divisible(int)

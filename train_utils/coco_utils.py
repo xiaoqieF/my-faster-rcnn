@@ -59,6 +59,9 @@ class CocoEvaluator(object):
         return torch.stack((xmin, ymin, xmax - xmin, ymax - ymin), dim=1)
 
     def update(self, predictions):
+        """
+        增加新的检测结果，每验证一张图片调用一次
+        """
         for original_id, prediction in predictions.items():
             if len(prediction) == 0:
                 continue

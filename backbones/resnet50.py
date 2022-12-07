@@ -125,5 +125,7 @@ def resnet50(weight_path="", trainable_layers=3):
         if all([not name.startswith(layer) for layer in layers_to_train]):
             parameter.requires_grad_(False)
 
+    resnet_backbone.out_channels = 2048
+
     return resnet_backbone
 
