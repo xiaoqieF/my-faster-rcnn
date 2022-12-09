@@ -70,6 +70,8 @@ Average Recall     (AR) @[ IoU=0.50:0.96 | area=medium | maxDets=100 ] = 0.309
 Average Recall     (AR) @[ IoU=1.50:0.95 | area= large | maxDets=100 ] = 0.512  
 ```
 
+使用其它 backbone 训练时结果在 mobilenetV2 上有所提升，但提升不大(大概5，6个点，没有想象的那么好)，特别是带有 fpn 结构的 resnet50 作为骨干网络，估计是没有 fpn 部分的预训练权重，只有 resnet50 的权重导致。
+
 示例图片检测结果如下：  
 
 ![](./result.jpg)
