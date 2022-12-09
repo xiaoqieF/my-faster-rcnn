@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-
+from torchvision.models.detection.backbone_utils import BackboneWithFPN
 
 class Bottleneck(nn.Module):
     expansion = 4
@@ -129,3 +129,14 @@ def resnet50(weight_path="", trainable_layers=3):
 
     return resnet_backbone
 
+def resnet50_fpn(weight_path="", trainable_layers=4):
+    resnet_backbone = resnet50(weight_path, trainable_layers)
+    returned_layers = {
+        'layer1': '0',
+        'layer2': '1',
+        'layer3': '2',
+        'layer4': '3',
+    }
+    in_channels_list = [256, 512, 1024, 2048]
+    out_channels = 256
+    return BackboneWithFPN(resnet_backbone, returned_layers, in_channels_list, out_channels)
