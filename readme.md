@@ -53,6 +53,7 @@ predict.py 文件使用验证集对已经训练好的模型进行测试，并计
 
 对于使用 mobilenetV2 backbone 的模型，训练结果如下：  
 
+```
 backbone: mobilenet
  
 Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.303
@@ -67,6 +68,7 @@ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.449
 Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.129
 Average Recall     (AR) @[ IoU=0.50:0.96 | area=medium | maxDets=100 ] = 0.309
 Average Recall     (AR) @[ IoU=1.50:0.95 | area= large | maxDets=100 ] = 0.512  
+```
 
 示例图片检测结果如下：  
 
