@@ -21,7 +21,12 @@ def create_model(num_classes):
     roi_pooler = torchvision.ops.MultiScaleRoIAlign(featmap_names=['0', '1', '2', '3'],
                                                     output_size=[7, 7],
                                                     sampling_ratio=2)
-    model = FasterRCNN(backbone, num_classes, rpn_anchor_generator=anchor_generator, box_roi_pool=roi_pooler)
+    model = FasterRCNN(backbone,
+                       num_classes, 
+                       min_size=600,
+                       max_size=800,
+                       rpn_anchor_generator=anchor_generator, 
+                       box_roi_pool=roi_pooler)
     return model
 
 def main():
@@ -40,7 +45,7 @@ def main():
     train_dataset = VOCDataSet(data_root, data_transform["train"], isTrain=True)
     print(f"total training samples:{len(train_dataset)}")
 
-    train_dataloader = DataLoader(train_dataset, batch_size=4, shuffle=True, \
+    train_dataloader = DataLoader(train_dataset, batch_size=8, shuffle=True, \
         num_workers=6, collate_fn=collate_fn)
 
     val_dataset = VOCDataSet(data_root, data_transform["val"], isTrain=False)
